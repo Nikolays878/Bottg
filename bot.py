@@ -7,7 +7,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.filters import Command, CommandStart
 import logging
 
-API_TOKEN = "7612817210:AAE9b2Q4mnljmWs10L0boPhpYHT0qYB8ta0"
+API_TOKEN = "7612817210:AAG8x_0a2fCVRtt6njrwKme4I_EuxNB0pdg"
 GROUP_CHAT_ID = -1002368509151  # Заменить на ID вашей группы
 
 logging.basicConfig(level=logging.INFO)
