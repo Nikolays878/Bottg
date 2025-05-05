@@ -3,12 +3,15 @@
   "builds": [
     {
       "src": "bot.py",
-      "use": "@vercel/python"
+      "use": "@vercel/python",
+      "config": {
+        "pythonVersion": "3.9"
+      }
     }
   ],
   "routes": [
     {
-      "src": "/",
+      "src": "/webhook",
       "dest": "/bot.py"
     }
   ]
