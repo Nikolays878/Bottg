@@ -1,13 +1,15 @@
 import asyncio
+import logging
+import os
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.filters import Command, CommandStart
-import logging
+from aiohttp import web
 
-API_TOKEN = "7612817210:AAG8x_0a2fCVRtt6njrwKme4I_EuxNB0pdg"
+API_TOKEN = os.getenv("API_TOKEN")  # API токен будет храниться в переменной окружения
 GROUP_CHAT_ID = -1002368509151  # Заменить на ID вашей группы
 
 logging.basicConfig(level=logging.INFO)
@@ -109,8 +111,27 @@ def format_description(data):
         f"<b>Telegram:</b> {data['username']}"
     )
 
+# Обработчик для вебхука
+async def on_webhook(request):
+    json_str = await request.json()
+    update = types.Update(**json_str)
+    await dp.process_update(update)
+    return web.Response()
+
+# Устанавливаем вебхук
+async def on_start():
+    webhook_url = os.getenv("WEBHOOK_URL")  # URL вебхука для Vercel
+    await bot.set_webhook(webhook_url)
+
+# Создаем приложение и запускаем сервер
+app = web.Application()
+app.router.add_post('/webhook', on_webhook)
+
 async def main():
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    import asyncio
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(on_start())  # Устанавливаем вебхук
+    web.run_app(app, host="0.0.0.0", port=8080)
