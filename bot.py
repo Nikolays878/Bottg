@@ -6,6 +6,7 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.filters import Command, CommandStart
 import logging
+from aiohttp import web
 
 API_TOKEN = "7612817210:AAE_RGYQX6kQU503S8gFWxEbmacHk9yb0PU"
 GROUP_CHAT_ID = -1002368509151  # Заменить на ID вашей группы
@@ -107,10 +108,32 @@ def format_description(data):
         f"<b>Возраст:</b> {data['age']}\n"
         f"<b>Город:</b> {data['city']}\n"
         f"<b>Telegram:</b> {data['username']}"
+
     )
 
-async def main():
-    await dp.start_polling(bot)
+# Для получения вебхуков
+async def on_start(request):
+    return web.Response(text="Hello, this is your bot!")
+
+# Создание вебхука для Telegram
+async def set_webhook():
+    webhook_url = "https://<your-vercel-url>/webhook"
+    await bot.set_webhook(webhook_url)
+
+# Обработка вебхуков
+async def webhook(request):
+    json_str = await request.json()
+    update = types.Update(**json_str)
+    await dp.process_update(update)
+    return web.Response()
+
+async def init():
+    app = web.Application()
+    app.add_routes([web.post('/webhook', webhook)])
+    return app
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    # Установим вебхук
+    asyncio.run(set_webhook())
+    # Запуск приложения через aiohttp
+    web.run_app(init(), port=5000)
