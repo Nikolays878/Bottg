@@ -10,7 +10,7 @@ from aiogram.filters import Command, CommandStart
 import random
 
 # === Конфигурация ===
-API_TOKEN = "7957463475:AAEL6F9nUbnHNN3QYtOvA0zLANaOlyV5GyI"
+API_TOKEN = "7957463475:AAG8iS8WWpgE93WpnqMXMLbHn0GmZLnvx1U"
 GROUP_CHAT_ID = -1002283722483
 ADMIN_ID = 6759225861  # Ваш Telegram ID
 
@@ -97,18 +97,22 @@ async def get_age(message: Message, state: FSMContext):
 async def get_city(message: Message, state: FSMContext):
     data = await state.get_data()
 
-    # Используем default значения, если какие-то данные отсутствуют
+    # Получаем данные, введенные пользователем
     pubg_nick = data.get("pubg_nick", "Не указан")
     pubg_id = data.get("pubg_id", "Не указан")
     age = data.get("age", "Не указан")
-    city = data.get("city", "Не указан")
+    city = message.text.strip()  # Получаем текст сообщения как город
+
+    # Если город не был введен, устанавливаем значение по умолчанию
+    if not city:
+        city = "Не указан"
 
     user_id = message.from_user.id
     username = message.from_user.username or f"id_{user_id}"
 
     # Сохраняем данные в БД
     cursor.execute(
-        "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)",
+        "INSERT INTO users (user_id, username, pubg_nick, pubg_id, age, city) VALUES (?, ?, ?, ?, ?, ?)",
         (user_id, username, pubg_nick, pubg_id, age, city)
     )
     conn.commit()
